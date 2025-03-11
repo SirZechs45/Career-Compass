@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Path Guidance Tool</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --bg: #ffffff;
+      --text: #1f2937;
+      --card-bg: #f9fafb;
+      --border: #e5e7eb;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    .dark {
+      --primary: #818cf8;
+      --bg: #111827;
+      --text: #f9fafb;
+      --card-bg: #1f2937;
+      --border: #374151;
+      --shadow: rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .toggle {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 0.3rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .toggle-icon {
+      padding: 0.3rem 0.5rem;
+      border-radius: 0.5rem;
+    }
+
+    .toggle-icon.active {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: opacity 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 0.3rem;
+      background-color: var(--bg);
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .slider-container {
+      margin-bottom: 1rem;
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .tag {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.3rem 0.7rem;
+      border-radius: 0.3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .tag span {
+      margin-right: 0.3rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      padding: 0.7rem;
+      border-bottom: 3px solid var(--border);
+      opacity: 0.6;
+    }
+
+    .step.active {
+      border-bottom: 3px solid var(--primary);
+      opacity: 1;
+    }
+
+    .career-path {
+      margin-bottom: 2rem;
+      animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.7rem 0;
+    }
+
+    .skill-item {
+      background-color: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.3rem;
+      font-size: 0.9rem;
+    }
+
+    .resources-list, .salary-info {
+      margin-top: 0.7rem;
+    }
+
+    #loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(99, 102, 241, 0.2);
+      border-left-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .steps {
+        flex-direction: column;
+      }
+      
+      .step {
+        margin-bottom: 0.5rem;
+        border-bottom: none;
+        border-left: 3px solid var(--border);
+        text-align: left;
+      }
+      
+      .step.active {
+        border-bottom: none;
+        border-left: 3px solid var(--primary);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Career Path Guidance Tool</h1>
+    <div class="toggle" id="themeToggle">
+      <div class="toggle-icon" id="lightIcon">☀️</div>
+      <div class="toggle-icon" id="darkIcon">🌙</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="steps">
+      <div class="step active" id="step1">1. API Setup</div>
+      <div class="step" id="step2">2. Your Profile</div>
+      <div class="step" id="step3">3. Assessment</div>
+      <div class="step" id="step4">4. Career Paths</div>
+    </div>
+
+    <!-- Step 1: API Setup -->
+    <div class="card" id="apiSetupCard">
+      <h2>Connect to Gemini API</h2>
+      <p>To provide personalized career guidance, we need to connect to the Gemini API. Please follow these steps:</p>
+      <ol style="margin: 1rem 0 1rem 1.5rem;">
+        <li>Click the button below to visit the Gemini API page</li>
+        <li>Create an API key (it's free)</li>
+        <li>Copy the key and paste it below</li>
+      </ol>
+      <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener">
+        <button type="button">Get Gemini API Key</button>
+      </a>
+      <div style="margin-top: 1.5rem;">
+        <label for="apiKey">Paste your API key:</label>
+        <input type="password" id="apiKey" placeholder="Enter your Gemini API key">
+        <button type="button" id="validateApiBtn">Continue</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Profile Creation -->
+    <div class="card hidden" id="profileCard">
+      <h2>Tell us about yourself</h2>
+      <p>Help us understand your skills, interests, and academic performance to provide tailored career recommendations.</p>
+      
+      <div>
+        <label for="skills">Technical Skills:</label>
+        <select id="skills" multiple>
+          <option value="Programming">Programming</option>
+          <option value="Data Analysis">Data Analysis</option>
+          <option value="Web Development">Web Development</option>
+          <option value="Mobile App Development">Mobile App Development</option>
+          <option value="Graphic Design">Graphic Design</option>
+          <option value="UI/UX Design">UI/UX Design</option>
+          <option value="Digital Marketing">Digital Marketing</option>
+          <option value="Machine Learning">Machine Learning</option>
+          <option value="Cloud Computing">Cloud Computing</option>
+          <option value="Networking">Networking</option>
+          <option value="Database Management">Database Management</option>
+          <option value="Cybersecurity">Cybersecurity</option>
+          <option value="Project Management">Project Management</option>
+        </select>
+        <div class="tags-container" id="selectedSkills"></div>
+      </div>
+
+      <div>
+        <label for="interests">Professional Interests:</label>
+        <select id="interests" multiple>
+          <option value="Software Development">Software Development</option>
+          <option value="Artificial Intelligence">Artificial Intelligence</option>
+          <option value="Data Science">Data Science</option>
+          <option value="Game Development">Game Development</option>
+          <option value="Robotics">Robotics</option>
+          <option value="IoT">Internet of Things</option>
+          <option value="Cybersecurity">Cybersecurity</option>
+          <option value="Blockchain">Blockchain</option>
+          <option value="Virtual Reality">Virtual Reality</option>
+          <option value="Product Management">Product Management</option>
+          <option value="UX Research">UX Research</option>
+          <option value="DevOps">DevOps</option>
+          <option value="Cloud Architecture">Cloud Architecture</option>
+        </select>
+        <div class="tags-container" id="selectedInterests"></div>
+      </div>
+
+      <div>
+        <label for="academics">Academic Strengths:</label>
+        <select id="academics" multiple>
+          <option value="Mathematics">Mathematics</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Engineering">Engineering</option>
+          <option value="Physics">Physics</option>
+          <option value="Statistics">Statistics</option>
+          <option value="Economics">Economics</option>
+          <option value="Business">Business</option>
+          <option value="Psychology">Psychology</option>
+          <option value="Communications">Communications</option>
+          <option value="Design">Design</option>
+          <option value="Biology">Biology</option>
+          <option value="Chemistry">Chemistry</option>
+          <option value="Literature">Literature</option>
+        </select>
+        <div class="tags-container" id="selectedAcademics"></div>
+      </div>
+
+      <button type="button" id="profileNextBtn">Continue to Assessment</button>
+    </div>
+
+    <!-- Step 3: Assessment Questions -->
+    <div class="card hidden" id="assessmentCard">
+      <h2>Career Assessment Questions</h2>
+      <p>Please answer these personalized questions to refine your career recommendations.</p>
+      <div id="questionsList">
+        <div id="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+      <button type="button" id="generateRecommendationsBtn" disabled>Generate Career Recommendations</button>
+    </div>
+
+    <!-- Step 4: Results -->
+    <div class="card hidden" id="resultsCard">
+      <h2>Your Personalized Career Paths</h2>
+      <p>Based on your profile and assessment, here are career paths that could be a good fit for you:</p>
+      <div id="careerResults">
+        <div id="loadingResults">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const lightIcon = document.getElementById('lightIcon');
+    const darkIcon = document.getElementById('darkIcon');
+    
+    // Initialize theme from local storage or system preference
+    if (localStorage.getItem('theme') === 'dark' || 
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.body.classList.add('dark');
+      darkIcon.classList.add('active');
+    } else {
+      lightIcon.classList.add('active');
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      lightIcon.classList.toggle('active');
+      darkIcon.classList.toggle('active');
+      
+      if (document.body.classList.contains('dark')) {
+        localStorage.setItem('theme', 'dark');
+      } else {
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    // Navigation between steps
+    const steps = ['apiSetupCard', 'profileCard', 'assessmentCard', 'resultsCard'];
+    const stepIndicators = ['step1', 'step2', 'step3', 'step4'];
+    let currentStep = 0;
+    
+    function showStep(stepIndex) {
+      steps.forEach((step, index) => {
+        document.getElementById(step).classList.toggle('hidden', index !== stepIndex);
+        document.getElementById(stepIndicators[index]).classList.toggle('active', index === stepIndex);
+      });
+      currentStep = stepIndex;
+    }
+
+    // API Key validation
+    document.getElementById('validateApiBtn').addEventListener('click', () => {
+      const apiKey = document.getElementById('apiKey').value.trim();
+      if (apiKey) {
+        localStorage.setItem('geminiApiKey', apiKey);
+        showStep(1); // Move to profile step
+      } else {
+        alert('Please enter a valid API key');
+      }
+    });
+
+    // Multi-select functionality for skills, interests, and academics
+    function setupMultiSelect(selectId, tagsContainerId) {
+      const select = document.getElementById(selectId);
+      const tagsContainer = document.getElementById(tagsContainerId);
+      const selectedItems = new Set();
+      
+      select.addEventListener('change', () => {
+        tagsContainer.innerHTML = '';
+        selectedItems.clear();
+        
+        Array.from(select.selectedOptions).forEach(option => {
+          selectedItems.add(option.value);
+          
+          const tag = document.createElement('div');
+          tag.className = 'tag';
+          tag.innerHTML = `
+            <span>${option.value}</span>
+            <span style="cursor:pointer" data-value="${option.value}">✕</span>
+          `;
+          tagsContainer.appendChild(tag);
+          
+          tag.querySelector('span[data-value]').addEventListener('click', (e) => {
+            const value = e.target.getAttribute('data-value');
+            selectedItems.delete(value);
+            Array.from(select.options).forEach(opt => {
+              if (opt.value === value) opt.selected = false;
+            });
+            tag.remove();
+          });
+        });
+      });
+      
+      return selectedItems;
+    }
+    
+    const selectedSkills = setupMultiSelect('skills', 'selectedSkills');
+    const selectedInterests = setupMultiSelect('interests', 'selectedInterests');
+    const selectedAcademics = setupMultiSelect('academics', 'selectedAcademics');
+
+    // Continue to assessment step
+    document.getElementById('profileNextBtn').addEventListener('click', async () => {
+      if (selectedSkills.size === 0 || selectedInterests.size === 0 || selectedAcademics.size === 0) {
+        alert('Please select at least one option in each category');
+        return;
+      }
+      
+      showStep(2); // Move to assessment step
+      await generateAssessmentQuestions();
+    });
+
+    async function generateAssessmentQuestions() {
+      const apiKey = localStorage.getItem('geminiApiKey');
+      const skills = Array.from(selectedSkills).join(', ');
+      const interests = Array.from(selectedInterests).join(', ');
+      const academics = Array.from(selectedAcademics).join(', ');
+      
+      const prompt = `Generate 5 personalized career assessment questions based on the user's initial inputs: Skills: ${skills}, Interests: ${interests}, Academic Strengths: ${academics}. Return only the questions in bullet points.`;
+      
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: prompt
+              }]
+            }]
+          })
+        });
+        
+        const data = await response.json();
+        const questionText = data.candidates[0].content.parts[0].text;
+        const questions = questionText
+          .split('\n')
+          .filter(line => line.trim().startsWith('-') || line.trim().startsWith('•') || /^\d+\./.test(line.trim()))
+          .map(line => line.replace(/^[-•\d.]+\s*/, '').trim());
+        
+        displayQuestions(questions);
+      } catch (error) {
+        console.error('Error generating questions:', error);
+        document.getElementById('questionsList').innerHTML = `
+          <p style="color: red;">Error generating questions. Please check your API key and try again.</p>
+        `;
+      }
+    }
+
+    function displayQuestions(questions) {
+      const questionsListElement = document.getElementById('questionsList');
+      questionsListElement.innerHTML = '';
+      
+      questions.forEach((question, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'slider-container';
+        questionDiv.innerHTML = `
+          <label for="q${index}">${question}</label>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <input type="range" id="q${index}" min="1" max="5" value="3" style="flex: 1;">
+            <span id="q${index}Value">3</span>
+          </div>
+        `;
+        questionsListElement.appendChild(questionDiv);
+        
+        const slider = questionDiv.querySelector(`#q${index}`);
+        const valueDisplay = questionDiv.querySelector(`#q${index}Value`);
+        
+        slider.addEventListener('input', () => {
+          valueDisplay.textContent = slider.value;
+        });
+      });
+      
+      document.getElementById('generateRecommendationsBtn').disabled = false;
+    }
+
+    // Generate recommendations
+    document.getElementById('generateRecommendationsBtn').addEventListener('click', async () => {
+      showStep(3); // Move to results step
+      await generateCareerRecommendations();
+    });
+
+    async function generateCareerRecommendations() {
+      const apiKey = localStorage.getItem('geminiApiKey');
+      const skills = Array.from(selectedSkills).join(', ');
+      const interests = Array.from(selectedInterests).join(', ');
+      const academics = Array.from(selectedAcademics).join(', ');
+      
+      const prompt = `Analyze the following user profile:
+- Skills: ${skills}
+- Interests: ${interests}
+- Academic Strengths: ${academics}
+
+Recommend 5 technical career paths in engineering/tech with:
+1. Job role descriptions
+2. Required hard/soft skills
+3. Learning resources (free + paid)
+4. Salary trends (entry to senior level)
+
+Format the output in JSON.`;
+      
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: prompt
+              }]
+            }]
+          })
+        });
+        
+        const data = await response.json();
+        const resultText = data.candidates[0].content.parts[0].text;
+        
+        // Extract JSON from the response text
+        let jsonMatch = resultText.match(/```json\n([\s\S]*?)\n```/) || 
+                         resultText.match(/```\n([\s\S]*?)\n```/) || 
+                         resultText.match(/{[\s\S]*?}/);
+        
+        let parsedData;
+        if (jsonMatch) {
+          try {
+            parsedData = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+          } catch (e) {
+            // If parsing fails, use regex to extract career paths
+            parsedData = { careers: extractCareersWithRegex(resultText) };
+          }
+        } else {
+          parsedData = { careers: extractCareersWithRegex(resultText) };
+        }
+        
+        displayCareerResults(parsedData);
+      } catch (error) {
+        console.error('Error generating recommendations:', error);
+        document.getElementById('careerResults').innerHTML = `
+          <p style="color: red;">Error generating career recommendations. Please try again.</p>
+        `;
+      }
+    }
+
+    function extractCareersWithRegex(text) {
+      // Fallback extraction if JSON parsing fails
+      const careers = [];
+      const careerSections = text.split(/\n\s*\d+\.\s+/g).slice(1);
+      
+      careerSections.forEach((section, index) => {
+        const career = {
+          title: section.split('\n')[0].trim(),
+          description: section.includes('Description') ? extractSection(section, 'Description') : section.split('\n').slice(1, 3).join(' ').trim(),
+          skills: extractSection(section, 'Skills') || extractSection(section, 'Required Skills'),
+          resources: extractSection(section, 'Resources') || extractSection(section, 'Learning Resources'),
+          salary: extractSection(section, 'Salary') || extractSection(section, 'Salary Trends')
+        };
+        careers.push(career);
+      });
+      
+      return careers;
+    }
+
+    function extractSection(text, sectionName) {
+      const regex = new RegExp(`${sectionName}[:\\-]\\s*(.*?)(?:\\n\\s*[A-Z][a-zA-Z\\s]+[:\\-]|$)`, 's');
+      const match = text.match(regex);
+      return match ? match[1].trim() : null;
+    }
+
+    function displayCareerResults(data) {
+      const resultsElement = document.getElementById('careerResults');
+      resultsElement.innerHTML = '';
+      
+      const careers = Array.isArray(data) ? data : (data.careers || []);
+      
+      if (careers.length === 0) {
+        resultsElement.innerHTML = '<p>No career paths were found. Please try again.</p>';
+        return;
+      }
+      
+      careers.forEach(career => {
+        const careerDiv = document.createElement('div');
+        careerDiv.className = 'career-path card';
+        
+        // Extract title from object or string
+        const title = typeof career === 'string' ? career : (career.title || career.name || career.career || 'Career Path');
+        
+        // Extract other details safely
+        const description = typeof career === 'object' ? (career.description || career.jobDescription || '') : '';
+        const skills = typeof career === 'object' ? (career.skills || career.requiredSkills || '') : '';
+        const resources = typeof career === 'object' ? (career.resources || career.learningResources || '') : '';
+        const salary = typeof career === 'object' ? (career.salary || career.salaryTrends || '') : '';
+        
+        // Format skills list
+        let skillsHTML = '';
+        if (skills) {
+          if (typeof skills === 'string') {
+            const skillsList = skills.split(/[,\n]/).filter(s => s.trim()).map(s => s.trim());
+            skillsHTML = `
+              <div class="skills-list">
+                ${skillsList.map(skill => `<span class="skill-item">${skill}</span>`).join('')}
+              </div>
+            `;
+          } else if (Array.isArray(skills)) {
+            skillsHTML = `
+              <div class="skills-list">
+                ${skills.map(skill => `<span class="skill-item">${skill}</span>`).join('')}
+              </div>
+            `;
+          }
+        }
+        
+        // Format resources and salary
+        const resourcesHTML = resources ? `<div class="resources-list">${formatSection(resources)}</div>` : '';
+        const salaryHTML = salary ? `<div class="salary-info">${formatSection(salary)}</div>` : '';
+        
+        careerDiv.innerHTML = `
+          <h2>${title}</h2>
+          <p>${formatSection(description)}</p>
+          
+          <h3>Required Skills</h3>
+          ${skillsHTML || '<p>No specific skills listed.</p>'}
+          
+          <h3>Learning Resources</h3>
+          ${resourcesHTML || '<p>No resources listed.</p>'}
+          
+          <h3>Salary Trends</h3>
+          ${salaryHTML || '<p>No salary information available.</p>'}
+        `;
+        
+        resultsElement.appendChild(careerDiv);
+      });
+    }
+
+    function formatSection(text) {
+      if (!text) return '';
+      
+      if (typeof text === 'string') {
+        // Convert bullet points in string to HTML
+        return text
+          .replace(/\n/g, '<br>')
+          .replace(/•\s*([^•]+)/g, '<li>$1</li>')
+          .replace(/-(.*?)(?=\n-|\n\n|$)/g, '<li>$1</li>')
+          .replace(/<li>/g, '<li style="margin-left: 1.5rem">')
+          .replace(/(?:<li>.*?<\/li>)+/, '<ul style="margin-bottom: 1rem">$&</ul>');
+      } else if (Array.isArray(text)) {
+        return `<ul style="margin-left: 1.5rem">${text.map(item => `<li>${item}</li>`).join('')}</ul>`;
+      } else if (typeof text === 'object') {
+        return Object.entries(text)
+          .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+          .join('<br>');
+      }
+      
+      return '';
+    }
+  </script>
+</body>
+</html>

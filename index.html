@@ -466,6 +466,35 @@
       await generateAssessmentQuestions();
     });
 
+
+    function displayQuestions(questions) {
+      const questionsListElement = document.getElementById('questionsList');
+      questionsListElement.innerHTML = '';
+      
+      questions.forEach((question, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'slider-container';
+        questionDiv.innerHTML = `
+          <label for="q${index}">${question}</label>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <input type="range" id="q${index}" min="1" max="5" value="3" style="flex: 1;">
+            <span id="q${index}Value">3</span>
+          </div>
+        `;
+        questionsListElement.appendChild(questionDiv);
+        
+        const slider = questionDiv.querySelector(`#q${index}`);
+        const valueDisplay = questionDiv.querySelector(`#q${index}Value`);
+        
+        slider.addEventListener('input', () => {
+          valueDisplay.textContent = slider.value;
+        });
+      });
+      
+      document.getElementById('generateRecommendationsBtn').disabled = false;
+    }
+
+    
     async function generateAssessmentQuestions() {
       const apiKey = localStorage.getItem('geminiApiKey');
       const skills = Array.from(selectedSkills).join(', ');
@@ -503,33 +532,6 @@
           <p style="color: red;">Error generating questions. Please check your API key and try again.</p>
         `;
       }
-    }
-
-    function displayQuestions(questions) {
-      const questionsListElement = document.getElementById('questionsList');
-      questionsListElement.innerHTML = '';
-      
-      questions.forEach((question, index) => {
-        const questionDiv = document.createElement('div');
-        questionDiv.className = 'slider-container';
-        questionDiv.innerHTML = `
-          <label for="q${index}">${question}</label>
-          <div style="display: flex; align-items: center; gap: 1rem;">
-            <input type="range" id="q${index}" min="1" max="5" value="3" style="flex: 1;">
-            <span id="q${index}Value">3</span>
-          </div>
-        `;
-        questionsListElement.appendChild(questionDiv);
-        
-        const slider = questionDiv.querySelector(`#q${index}`);
-        const valueDisplay = questionDiv.querySelector(`#q${index}Value`);
-        
-        slider.addEventListener('input', () => {
-          valueDisplay.textContent = slider.value;
-        });
-      });
-      
-      document.getElementById('generateRecommendationsBtn').disabled = false;
     }
 
     // Generate recommendations
